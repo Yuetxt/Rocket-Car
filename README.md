@@ -1,2 +1,2 @@
-# Age-of-Rust
-A simple RTS developed in Rust
+# Magic Go
+Go if it was designed today by video game developers....
