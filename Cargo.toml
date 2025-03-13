@@ -1,0 +1,8 @@
+[package]
+name = "placeholder_for_super_duper_fun_mining_type_of_game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ggez = "0.7"
+rand = "0.8"
