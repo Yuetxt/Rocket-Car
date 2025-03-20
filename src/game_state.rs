@@ -26,6 +26,7 @@ pub struct MainState {
     pub round_start_time: Instant,
     pub game_state: GameState,
     pub round_results: Option<Vec<(usize, f32)>>, // (miner_index, donated_gold)
+    pub past_results: Vec<bool>, // true for win, false for loss
 }
 
 impl MainState {
@@ -37,7 +38,7 @@ impl MainState {
         for _ in 0..3 {
             bots.push(Miner::new(MinerType::Bot));
         }
-
+    
         Ok(MainState {
             player,
             bots,
@@ -45,8 +46,10 @@ impl MainState {
             round_start_time: Instant::now(),
             game_state: GameState::Playing,
             round_results: None,
+            past_results: Vec::new(),
         })
     }
+    
 
     pub fn bot_make_decision(&mut self, bot_index: usize) {
         let bot = &mut self.bots[bot_index];
@@ -94,6 +97,10 @@ impl MainState {
         
         // Sort by donated gold (highest first)
         results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        
+        // Record if the player won this round (was ranked #1)
+        let player_won = results.first().map_or(false, |(index, _)| *index == 0);
+        self.past_results.push(player_won);
         
         // Assign damage based on position
         for (position, (miner_index, _)) in results.iter().enumerate() {
@@ -145,6 +152,7 @@ impl MainState {
         self.round_start_time = Instant::now();
         self.game_state = GameState::Playing;
         self.round_results = None;
+        self.past_results = Vec::new();
     }
 
     pub fn handle_game_ui_click(&mut self, x: f32, y: f32) {
@@ -252,7 +260,7 @@ impl EventHandler for MainState {
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
         use ggez::graphics::{self, Color};
-        graphics::clear(ctx, Color::BLACK);
+        graphics::clear(ctx, Color::WHITE);
 
         // Draw UI based on game state
         match self.game_state {
